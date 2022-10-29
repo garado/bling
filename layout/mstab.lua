@@ -28,6 +28,7 @@ local tabbar_size = bar.size
     or beautiful.tabbar_size
     or 40
 local dont_resize_slaves = beautiful.mstab_dont_resize_slaves or false
+local master_position = beautiful.mstab_master_position or "left"
 
 -- The top_idx is the idx of the slave clients (excluding all master clients)
 -- that should be on top of all other slave clients ("the focused slave")
@@ -102,24 +103,25 @@ function update_tabbar(
     end
 
     -- update the tabbar size and position (to support gap size change on the fly)
+    local master_pos = (beautiful.mstab_master_position == "left" and master_area_width) or 0
     if tabbar_position == "top" then
-        s.tabbar.x = area.x + master_area_width + t.gap
+        s.tabbar.x = area.x + master_pos + t.gap
         s.tabbar.y = area.y + t.gap
         s.tabbar.width = slave_area_width - 2 * t.gap
         s.tabbar.height = tabbar_size
     elseif tabbar_position == "bottom" then
-        s.tabbar.x = area.x + master_area_width + t.gap
+        s.tabbar.x = area.x + master_pos + t.gap
         s.tabbar.y = area.y + area.height - tabbar_size - t.gap
         s.tabbar.width = slave_area_width - 2 * t.gap
         s.tabbar.height = tabbar_size
     elseif tabbar_position == "left" then
-        s.tabbar.x = area.x + master_area_width + t.gap
+        s.tabbar.x = area.x + master_pos + t.gap
         s.tabbar.y = area.y + t.gap
         s.tabbar.width = tabbar_size
         s.tabbar.height = area.height - 2 * t.gap
     elseif tabbar_position == "right" then
         s.tabbar.x = area.x
-            + master_area_width
+            + master_pos
             + slave_area_width
             - tabbar_size
             - t.gap
@@ -154,14 +156,18 @@ function mylayout.arrange(p)
         slave_area_width = area.width
     end
 
-    -- Special case: One or zero slaves -> no tabbar (essentially tile right)
+    -- Special case: One or zero slaves -> no tabbar (essentially tile right/left)
     if nslaves <= 1 then
         -- since update_tabbar isnt called that way we have to hide it manually
         if s.tabbar then
             s.tabbar.visible = false
         end
-        -- otherwise just do tile right
-        awful.layout.suit.tile.right.arrange(p)
+        -- otherwise just do tile right/left
+        if master_position == "left" then
+            awful.layout.suit.tile.left.arrange(p)
+        else
+            awful.layout.suit.tile.right.arrange(p)
+        end
         return
     end
 
@@ -169,7 +175,7 @@ function mylayout.arrange(p)
     for idx = 1, nmaster do
         local c = p.clients[idx]
         local g = {
-            x = area.x,
+            x = area.x + (beautiful.mstab_master_position == "right" and master_area_width or 0),
             y = area.y + (idx - 1) * (area.height / nmaster),
             width = master_area_width,
             height = area.height / nmaster,
@@ -205,14 +211,16 @@ function mylayout.arrange(p)
             t.top_idx = #slave_clients
         end
         local g = {
-            x = area.x + master_area_width + tabbar_x_change,
+            x = area.x + tabbar_x_change +
+                (beautiful.mstab_master_position == "left" and master_area_width or 0),
             y = area.y + tabbar_y_change,
             width = slave_area_width - tabbar_width_change,
             height = area.height - tabbar_size_change,
         }
         if not dont_resize_slaves and idx ~= t.top_idx then
             g = {
-                x = area.x + master_area_width + slave_area_width / 4,
+                x = area.x + slave_area_width / 4 +
+                    (beautiful.mstab_master_position == "left" and master_area_width or 0),
                 y = area.y + tabbar_size + area.height / 4,
                 width = slave_area_width / 2,
                 height = area.height / 4 - tabbar_size,
