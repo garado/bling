@@ -103,25 +103,25 @@ function update_tabbar(
     end
 
     -- update the tabbar size and position (to support gap size change on the fly)
-    local master_pos = (beautiful.mstab_master_position == "left" and master_area_width) or 0
+    local master_pos_adjustment = beautiful.mstab_master_pos_adjustmentition == "left" and slave_area_width or 0
     if tabbar_position == "top" then
-        s.tabbar.x = area.x + master_pos + t.gap
+        s.tabbar.x = area.x + master_pos_adjustment + t.gap
         s.tabbar.y = area.y + t.gap
         s.tabbar.width = slave_area_width - 2 * t.gap
         s.tabbar.height = tabbar_size
     elseif tabbar_position == "bottom" then
-        s.tabbar.x = area.x + master_pos + t.gap
+        s.tabbar.x = area.x + master_pos_adjustment + t.gap
         s.tabbar.y = area.y + area.height - tabbar_size - t.gap
         s.tabbar.width = slave_area_width - 2 * t.gap
         s.tabbar.height = tabbar_size
     elseif tabbar_position == "left" then
-        s.tabbar.x = area.x + master_pos + t.gap
+        s.tabbar.x = area.x + master_pos_adjustment + t.gap
         s.tabbar.y = area.y + t.gap
         s.tabbar.width = tabbar_size
         s.tabbar.height = area.height - 2 * t.gap
     elseif tabbar_position == "right" then
         s.tabbar.x = area.x
-            + master_pos
+            + master_pos_adjustment
             + slave_area_width
             - tabbar_size
             - t.gap
@@ -175,7 +175,7 @@ function mylayout.arrange(p)
     for idx = 1, nmaster do
         local c = p.clients[idx]
         local g = {
-            x = area.x + (beautiful.mstab_master_position == "right" and master_area_width or 0),
+            x = area.x + (beautiful.mstab_master_position == "right" and slave_area_width or 0),
             y = area.y + (idx - 1) * (area.height / nmaster),
             width = master_area_width,
             height = area.height / nmaster,
@@ -212,7 +212,7 @@ function mylayout.arrange(p)
         end
         local g = {
             x = area.x + tabbar_x_change +
-                (beautiful.mstab_master_position == "left" and master_area_width or 0),
+                (beautiful.mstab_master_position == "left" and slave_area_width or 0),
             y = area.y + tabbar_y_change,
             width = slave_area_width - tabbar_width_change,
             height = area.height - tabbar_size_change,
@@ -220,7 +220,7 @@ function mylayout.arrange(p)
         if not dont_resize_slaves and idx ~= t.top_idx then
             g = {
                 x = area.x + slave_area_width / 4 +
-                    (beautiful.mstab_master_position == "left" and master_area_width or 0),
+                    (beautiful.mstab_master_position == "left" and slave_area_width or 0),
                 y = area.y + tabbar_size + area.height / 4,
                 width = slave_area_width / 2,
                 height = area.height / 4 - tabbar_size,
