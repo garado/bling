@@ -103,7 +103,7 @@ function update_tabbar(
     end
 
     -- update the tabbar size and position (to support gap size change on the fly)
-    local master_pos_adjustment = beautiful.mstab_master_pos_adjustmentition == "left" and slave_area_width or 0
+    local master_pos_adjustment = beautiful.mstab_master_pos_adjustment == "left" and slave_area_width or 0
     if tabbar_position == "top" then
         s.tabbar.x = area.x + master_pos_adjustment + t.gap
         s.tabbar.y = area.y + t.gap
